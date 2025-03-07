@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel - Lost Items & Security Concerns</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --dark: #34495e;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            width: 250px;
+            background-color: var(--dark);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: var(--dark);
+            font-size: 1.8rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 4px;
+            padding: 8px 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-bar input {
+            border: none;
+            outline: none;
+            padding: 5px;
+            width: 200px;
+        }
+        
+        .search-bar i {
+            color: var(--gray);
+        }
+        
+        /* Dashboard stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card h3 {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .stat-change {
+            font-size: 0.8rem;
+        }
+        
+        .stat-card .stat-change.positive {
+            color: var(--secondary);
+        }
+        
+        .stat-card .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary);
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .tab:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Tables */
+        .table-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f9f9f9;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.resolved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.urgent {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.in-progress {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #ddd;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>UniApp Admin</h2>
+                <p>Security & Lost Items</p>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active">
+                    <i>📊</i> Dashboard
+                </div>
+                <div class="menu-item">
+                    <i>🔑</i> Lost Items
+                </div>
+                <div class="menu-item">
+                    <i>🔒</i> Security Concerns
+                </div>
+                <div class="menu-item">
+                    <i>📝</i> Reports
+                </div>
+                <div class="menu-item">
+                    <i>⚙️</i> Settings
+                </div>
+                <div class="menu-item">
+                    <i>👤</i> User Management
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Admin Dashboard</h1>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <i>🔍</i>
+                        <input type="text" placeholder="Search reports...">
+                    </div>
+                    <button class="btn btn-primary" onclick="toggleModal('addReportModal')">Add New Report</button>
+                </div>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>Lost Items</h3>
+                    <div class="stat-value">42</div>
+                    <div class="stat-change positive">+12% from last week</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Security Concerns</h3>
+                    <div class="stat-value">18</div>
+                    <div class="stat-change negative">-5% from last week</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Resolved Cases</h3>
+                    <div class="stat-value">37</div>
+                    <div class="stat-change positive">+23% from last week</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Action</h3>
+                    <div class="stat-value">23</div>
+                    <div class="stat-change">No change</div>
+                </div>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="changeTab('lostItems')">Lost Items</div>
+                <div class="tab" onclick="changeTab('securityConcerns')">Security Concerns</div>
+            </div>
+            
+            <!-- Lost Items Table (Active by default) -->
+            <div id="lostItemsTab" class="tab-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Item</th>
+                                <th>Location</th>
+                                <th>Reported By</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lostItemsTable">
+                            <!-- Table data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Security Concerns Table (Hidden by default) -->
+            <div id="securityConcernsTab" class="tab-content" style="display: none;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Concern Type</th>
+                                <th>Location</th>
+                                <th>Reported By</th>
+                                <th>Date</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="securityConcernsTable">
+                            <!-- Table data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add New Report Modal -->
+    <div id="addReportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Report</h2>
+                <span class="close-modal" onclick="toggleModal('addReportModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="reportType">Report Type</label>
+                    <select id="reportType" class="form-control" onchange="toggleReportFields()">
+                        <option value="lostItem">Lost Item</option>
+                        <option value="securityConcern">Security Concern</option>
+                    </select>
+                </div>
+                
+                <!-- Common fields -->
+                <div class="form-group">
+                    <label for="reporterName">Reporter Name</label>
+                    <input type="text" id="reporterName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" class="form-control" required>
+                </div>
+                
+                <!-- Lost Item specific fields -->
+                <div id="lostItemFields">
+                    <div class="form-group">
+                        <label for="itemName">Item Name</label>
+                        <input type="text" id="itemName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemDescription">Description</label>
+                        <textarea id="itemDescription" class="form-control"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Security Concern specific fields -->
+                <div id="securityConcernFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="concernType">Concern Type</label>
+                        <select id="concernType" class="form-control">
+                            <option value="suspicious">Suspicious Activity</option>
+                            <option value="theft">Theft</option>
+                            <option value="vandalism">Vandalism</option>
+                            <option value="harassment">Harassment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="concernDetails">Details</label>
+                        <textarea id="concernDetails" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="toggleModal('addReportModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addNewReport()">Submit Report</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Item Details Modal -->
+    <div id="viewDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailsTitle">Item Details</h2>
+                <span class="close-modal" onclick="toggleModal('viewDetailsModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <!-- Details will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="toggleModal('viewDetailsModal')">Close</button>
+                <button id="detailsActionBtn" class="btn btn-primary">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for lost items
+        const lostItems = [
+            { id: 'LI-001', item: 'Laptop', location: 'Library, 2nd Floor', reportedBy: 'John Smith', date: '2025-03-06', status: 'pending', description: 'MacBook Pro, Space Gray, has a sticker of a mountain on the lid.' },
+            { id: 'LI-002', item: 'Water Bottle', location: 'Gym', reportedBy: 'Emily Johnson', date: '2025-03-06', status: 'resolved', description: 'Blue Hydroflask with university logo.' },
+            { id: 'LI-003', item: 'Student ID Card', location: 'Cafeteria', reportedBy: 'Michael Brown', date: '2025-03-05', status: 'pending', description: 'ID number ST2023045.' },
+            { id: 'LI-004', item: 'Textbook', location: 'Science Building, Room 302', reportedBy: 'Sarah Davis', date: '2025-03-04', status: 'in-progress', description: 'Organic Chemistry textbook, 4th edition.' },
+            { id: 'LI-005', item: 'Umbrella', location: 'Student Center', reportedBy: 'David Wilson', date: '2025-03-03', status: 'resolved', description: 'Black umbrella with automatic open button.' }
+        ];
+        
+        // Sample data for security concerns
+        const securityConcerns = [
+            { id: 'SC-001', type: 'Suspicious Activity', location: 'Parking Lot B', reportedBy: 'Lisa Thompson', date: '2025-03-06', priority: 'medium', status: 'pending', details: 'Unknown person checking car doors in the parking lot around 8 PM.' },
+            { id: 'SC-002', type: 'Vandalism', location: 'Arts Building', reportedBy: 'Robert Johnson', date: '2025-03-05', priority: 'low', status: 'resolved', details: 'Graffiti on the west wall of the building.' },
+            { id: 'SC-003', type: 'Theft', location: 'Computer Lab', reportedBy: 'Amanda Garcia', date: '2025-03-05', priority: 'high', status: 'in-progress', details: 'Several computer peripherals missing after hours.' },
+            { id: 'SC-004', type: 'Harassment', location: 'Student Dorm A', reportedBy: 'Kevin Lee', date: '2025-03-04', priority: 'urgent', status: 'in-progress', details: 'Student reports being followed and harassed by unknown individual.' },
+            { id: 'SC-005', type: 'Other', location: 'Main Entrance', reportedBy: 'Jennifer Wilson', date: '2025-03-03', priority: 'low', status: 'resolved', details: 'Broken glass near the entrance posing safety hazard.' }
+        ];
+        
+        // Load data when the page is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            populateLostItemsTable();
+            populateSecurityConcernsTable();
+        });
+        
+        // Populate the lost items table
+        function populateLostItemsTable() {
+            const tableBody = document.getElementById('lostItemsTable');
+            tableBody.innerHTML = '';
+            
+            lostItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.item}</td>
+                    <td>${item.location}</td>
+                    <td>${item.reportedBy}</td>
+                    <td>${item.date}</td>
+                    <td><span class="status ${item.status}">${capitalizeFirstLetter(item.status)}</span></td>
+                    <td class="actions">
+                        <button class="btn btn-primary" onclick="viewItemDetails('lost', '${item.id}')">View</button>
+                        <button class="btn btn-secondary" onclick="updateStatus('lost', '${item.id}')">Update</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Populate the security concerns table
+        function populateSecurityConcernsTable() {
+            const tableBody = document.getElementById('securityConcernsTable');
+            tableBody.innerHTML = '';
+            
+            securityConcerns.forEach(concern => {
+                const row = document.createElement('tr');
+                let priorityClass = '';
+                
+                switch(concern.priority) {
+                    case 'low':
+                        priorityClass = 'pending';
+                        break;
+                    case 'medium':
+                        priorityClass = 'in-progress';
+                        break;
+                    case 'high':
+                        priorityClass = 'pending';
+                        break;
+                    case 'urgent':
+                        priorityClass = 'urgent';
+                        break;
+                }
+                
+                row.innerHTML = `
+                    <td>${concern.id}</td>
+                    <td>${concern.type}</td>
+                    <td>${concern.location}</td>
+                    <td>${concern.reportedBy}</td>
+                    <td>${concern.date}</td>
+                    <td><span class="status ${priorityClass}">${capitalizeFirstLetter(concern.priority)}</span></td>
+                    <td><span class="status ${concern.status}">${capitalizeFirstLetter(concern.status)}</span></td>
+                    <td class="actions">
+                        <button class="btn btn-primary" onclick="viewItemDetails('security', '${concern.id}')">View</button>
+                        <button class="btn btn-secondary" onclick="updateStatus('security', '${concern.id}')">Update</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Change between tabs
+        function changeTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.style.display = 'none');
+            
+            if (tab === 'lostItems') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('lostItemsTab').style.display = 'block';
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('securityConcernsTab').style.display = 'block';
+            }
+        }
+        
+        // Toggle modal visibility
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            } else {
+                modal.style.display = 'flex';
+            }
+        }
+        
+        // Toggle fields based on report type
+        function toggleReportFields() {
+            const reportType = document.getElementById('reportType').value;
+            const lostItemFields = document.getElementById('lostItemFields');
+            const securityConcernFields = document.getElementById('securityConcernFields');
+            
+            if (reportType === 'lostItem') {
+                lostItemFields.style.display = 'block';
+                securityConcernFields.style.display = 'none';
+            } else {
+                lostItemFields.style.display = 'none';
+                securityConcernFields.style.display = 'block';
+            }
+        }
+        
+        // View item or concern details
+        function viewItemDetails(type, id) {
+            const detailsTitle = document.getElementById('detailsTitle');
+            const detailsContent = document.getElementById('detailsContent');
+            
+            if (type === 'lost') {
+                const item = lostItems.find(i => i.id === id);
+                if (item) {
+                    detailsTitle.textContent = `Lost Item: ${item.item}`;
+                    detailsContent.innerHTML = `
+                        <div class="form-group">
+                            <label>ID:</label>
+                            <p>${item.id}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Item:</label>
+                            <p>${item.item}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Description:</label>
+                            <p>${item.description}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Location:</label>
+                            <p>${item.location}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Reported By:</label>
+                            <p>${item.reportedBy}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Date:</label>
+                            <p>${item.date}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <p><span class="status ${item.status}">${capitalizeFirstLetter(item.status)}</span></p>
+                        </div>
+                    `;
+                }
+            } else {
+                const concern = securityConcerns.find(c => c.id === id);
+                if (concern) {
+                    detailsTitle.textContent = `Security Concern: ${concern.type}`;
+                    detailsContent.innerHTML = `
+                        <div class="form-group">
+                            <label>ID:</label>
+                            <p>${concern.id}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Type:</label>
+                            <p>${concern.type}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Details:</label>
+                            <p>${concern.details}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Location:</label>
+                            <p>${concern.location}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Reported By:</label>
+                            <p>${concern.reportedBy}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Date:</label>
+                            <p>${concern.date}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Priority:</label>
+                            <p><span class="status ${getPriorityClass(concern.priority)}">${capitalizeFirstLetter(concern.priority)}</span></p>
+                        </div>
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <p><span class="status ${concern.status}">${capitalizeFirstLetter(concern.status)}</span></p>
+                        </div>
+                    `;
+                }
+            }
+            
+            toggleModal('viewDetailsModal');
+        }
+        
+        // Add new report
+        function addNewReport() {
+            const reportType = document.getElementById('reportType').value;
+            const reporterName = document.getElementById('reporterName').value;
+            const location = document.getElementById('location').value;
+            
+            if (!reporterName || !location) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (reportType === 'lostItem') {
+                const itemName = document.getElementById('itemName').value;
+                const itemDescription = document.getElementById('itemDescription').value;
+                
+                if (!itemName) {
+                    alert('Please enter an item name');
+                    return;
+                }
+                
+                const newId = 'LI-' + String(lostItems.length + 1).padStart(3, '0');
+                
+                lostItems.unshift({
+                    id: newId,
+                    item: itemName,
+                    location: location,
+                    reportedBy: reporterName,
+                    date: today,
+                    status: 'pending',
+                    description: itemDescription
+                });

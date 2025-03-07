@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Lost Items & Security Concerns | University App</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fd;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .tab-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #e9ecef;
+        }
+
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .tab.active {
+            background-color: white;
+            color: var(--primary);
+            border-top: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            padding: 30px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .input-row .form-group {
+            flex: 1;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+        }
+
+        .location-picker {
+            margin-bottom: 20px;
+        }
+
+        .location-map {
+            height: 200px;
+            background-color: #e9ecef;
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+
+        .photo-upload {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .photo-upload:hover {
+            border-color: var(--primary);
+        }
+
+        .photo-upload-icon {
+            font-size: 30px;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .upload-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .preview-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+        }
+
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-section {
+            margin-top: 30px;
+        }
+
+        .report-history {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .report-card {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-card:last-child {
+            border-bottom: none;
+        }
+
+        .report-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-in-progress {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-resolved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .urgency-high {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .tab {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">UniApp</div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Profile</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="lost-items">Report Lost Item</div>
+                <div class="tab" data-tab="security">Report Security Concern</div>
+                <div class="tab" data-tab="status">Check Status</div>
+            </div>
+
+            <div class="tab-content active" id="lost-items-content">
+                <div class="success-message" id="lost-success">
+                    Your lost item report has been submitted successfully. You can track the status in the "Check Status" tab. Reference ID: <span id="lost-reference"></span>
+                </div>
+                <div class="error-message" id="lost-error">
+                    There was an error submitting your report. Please try again.
+                </div>
+
+                <form id="lost-items-form">
+                    <div class="form-group">
+                        <label for="item-name">Item Name*</label>
+                        <input type="text" id="item-name" placeholder="What did you lose?" required>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label for="item-category">Category*</label>
+                            <select id="item-category" required>
+                                <option value="">Select a category</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="documents">Documents/ID</option>
+                                <option value="accessories">Accessories</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="books">Books/Notebooks</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-lost">Date Lost*</label>
+                            <input type="date" id="date-lost" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Last Known Location*</label>
+                        <div class="location-picker">
+                            <select id="location-building" required>
+                                <option value="">Select building</option>
+                                <option value="main-building">Main Building</option>
+                                <option value="library">Library</option>
+                                <option value="student-center">Student Center</option>
+                                <option value="science-building">Science Building</option>
+                                <option value="cafeteria">Cafeteria</option>
+                                <option value="sports-complex">Sports Complex</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="location-map">
+                                Interactive campus map would be displayed here
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-description">Description*</label>
+                        <textarea id="item-description" placeholder="Please describe the item in detail (color, size, distinguishing features, etc.)" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Photos (Optional)</label>
+                        <div class="photo-upload" id="lost-photo-upload">
+                            <div class="photo-upload-icon">📷</div>
+                            <p>Click to upload or drag and drop photos of your item</p>
+                            <input type="file" id="lost-photos" multiple accept="image/*" style="display: none;">
+                            <div class="upload-preview" id="lost-photos-preview"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact-info">Contact Information*</label>
+                        <input type="text" id="contact-info" placeholder="Your email or phone number" required>
+                    </div>
+
+                    <button type="submit">Submit Report</button>
+                </form>
+            </div>
+
+            <div class="tab-content" id="security-content">
+                <div class="success-message" id="security-success">
+                    Your security concern has been submitted successfully. You can track the status in the "Check Status" tab. Reference ID: <span id="security-reference"></span>
+                </div>
+                <div class="error-message" id="security-error">
+                    There was an error submitting your report. Please try again.
+                </div>
+
+                <form id="security-form">
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label for="concern-type">Type of Concern*</label>
+                            <select id="concern-type" required>
+                                <option value="">Select concern type</option>
+                                <option value="suspicious-activity">Suspicious Activity</option>
+                                <option value="theft">Theft</option>
+                                <option value="vandalism">Vandalism</option>
+                                <option value="safety-hazard">Safety Hazard</option>
+                                <option value="harassment">Harassment</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="urgency-level">Urgency Level*</label>
+                            <select id="urgency-level" required>
+                                <option value="low">Low - For documentation only</option>
+                                <option value="medium">Medium - Needs attention soon</option>
+                                <option value="high">High - Requires immediate attention</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location of Incident*</label>
+                        <div class="location-picker">
+                            <select id="security-location" required>
+                                <option value="">Select location</option>
+                                <option value="main-building">Main Building</option>
+                                <option value="library">Library</option>
+                                <option value="student-center">Student Center</option>
+                                <option value="science-building">Science Building</option>
+                                <option value="cafeteria">Cafeteria</option>
+                                <option value="sports-complex">Sports Complex</option>
+                                <option value="parking-lot">Parking Lot</option>
+                                <option value="dormitory">Dormitory</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="location-map">
+                                Interactive campus map would be displayed here
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="incident-date">Date and Time of Incident*</label>
+                        <input type="datetime-local" id="incident-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="security-description">Description of Incident*</label>
+                        <textarea id="security-description" placeholder="Please provide a detailed description of what you observed or experienced" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Photos or Evidence (Optional)</label>
+                        <div class="photo-upload" id="security-photo-upload">
+                            <div class="photo-upload-icon">📷</div>
+                            <p>Click to upload or drag and drop photos related to the incident</p>
+                            <input type="file" id="security-photos" multiple accept="image/*" style="display: none;">
+                            <div class="upload-preview" id="security-photos-preview"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="witnesses">Witnesses (Optional)</label>
+                        <input type="text" id="witnesses" placeholder="Names or contact information of any witnesses">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="security-contact">Your Contact Information*</label>
+                        <input type="text" id="security-contact" placeholder="Your email or phone number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="anonymous-report">
+                            <input type="checkbox" id="anonymous-report"> Submit anonymously
+                        </label>
+                    </div>
+
+                    <button type="submit">Submit Report</button>
+                </form>
+            </div>
+
+            <div class="tab-content" id="status-content">
+                <div class="form-group">
+                    <label for="report-id">Enter Report Reference ID</label>
+                    <div class="input-row">
+                        <input type="text" id="report-id" placeholder="Enter your reference ID">
+                        <button id="check-status-btn" style="margin-left: 10px;">Check Status</button>
+                    </div>
+                </div>
+
+                <div class="status-section">
+                    <h3>Your Recent Reports</h3>
+                    <div class="report-history">
+                        <div class="report-card">
+                            <div>
+                                <strong>Lost Laptop Charger</strong>
+                                <p>Reported on: 03/05/2025</p>
+                            </div>
+                            <span class="report-status status-in-progress">In Progress</span>
+                        </div>
+                        <div class="report-card">
+                            <div>
+                                <strong>Suspicious Activity - Parking Lot</strong>
+                                <p>Reported on: 02/28/2025</p>
+                                <p class="urgency-high">High Urgency</p>
+                            </div>
+                            <span class="report-status status-resolved">Resolved</span>
+                        </div>
+                        <div class="report-card">
+                            <div>
+                                <strong>Lost Student ID Card</strong>
+                                <p>Reported on: 02/15/2025</p>
+                            </div>
+                            <span class="report-status status-resolved">Resolved</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching Functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-content`).classList.add('active');
+            });
+        });
+
+        // Photo Upload Functionality
+        const lostPhotoUpload = document.getElementById('lost-photo-upload');
+        const lostPhotosInput = document.getElementById('lost-photos');
+        const lostPhotosPreview = document.getElementById('lost-photos-preview');
+        
+        lostPhotoUpload.addEventListener('click', () => {
+            lostPhotosInput.click();
+        });
+        
+        lostPhotosInput.addEventListener('change', handleFileSelect);
+
+        const securityPhotoUpload = document.getElementById('security-photo-upload');
+        const securityPhotosInput = document.getElementById('security-photos');
+        const securityPhotosPreview = document.getElementById('security-photos-preview');
+        
+        securityPhotoUpload.addEventListener('click', () => {
+            securityPhotosInput.click();
+        });
+        
+        securityPhotosInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            const previewContainer = event.target.id === 'lost-photos' ? lostPhotosPreview : securityPhotosPreview;
+            
+            // Clear the preview
+            previewContainer.innerHTML = '';
+            
+            // Process each file
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Only process image files
+                if (!file.type.match('image.*')) {
+                    continue;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = (function(theFile) {
+                    return function(e) {
+                        // Create thumbnail
+                        const img = document.createElement('img');
+                        img.classList.add('preview-image');
+                        img.src = e.target.result;
+                        
+                        previewContainer.appendChild(img);
+                    };
+                })(file);
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Form Submission Handling
+        const lostItemsForm = document.getElementById('lost-items-form');
+        const securityForm = document.getElementById('security-form');
+        
+        lostItemsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real app, you would send the form data to a server here
+            console.log('Lost item report submitted');
+            
+            // Show success message
+            const successMessage = document.getElementById('lost-success');
+            const referenceSpan = document.getElementById('lost-reference');
+            const referenceId = 'LI' + Math.floor(Math.random() * 10000);
+            referenceSpan.textContent = referenceId;
+            successMessage.style.display = 'block';
+            
+            // Reset form
+            lostItemsForm.reset();
+            lostPhotosPreview.innerHTML = '';
+            
+            // Scroll to success message
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+            
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+        });
+        
+        securityForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real app, you would send the form data to a server here
+            console.log('Security concern submitted');
+            
+            // Show success message
+            const successMessage = document.getElementById('security-success');
+            const referenceSpan = document.getElementById('security-reference');
+            const referenceId = 'SC' + Math.floor(Math.random() * 10000);
+            referenceSpan.textContent = referenceId;
+            successMessage.style.display = 'block';
+            
+            // Reset form
+            securityForm.reset();
+            securityPhotosPreview.innerHTML = '';
+            
+            // Scroll to success message
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+            
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+        });
+
+        // Status Checking Functionality
+        const checkStatusBtn = document.getElementById('check-status-btn');
+        
+        checkStatusBtn.addEventListener('click', function() {
+            const reportId = document.getElementById('report-id').value;
+            
+            // In a real app, you would fetch the status from a server here
+            console.log('Checking status for report:', reportId);
+            
+            // For demo purposes, we'll just show an alert
+            if (reportId) {
+                alert(`Status for report ${reportId}: In Progress - Your report has been received and is currently being processed.`);
+            } else {
+                alert('Please enter a valid report reference ID.');
+            }
+        });
+
+        // Set urgency level color
+        const urgencyLevel = document.getElementById('urgency-level');
+        urgencyLevel.addEventListener('change', function() {
+            if (this.value === 'high') {
+                this.style.color = '#f72585';
+                this.style.fontWeight = 'bold';
+            } else {
+                this.style.color = '';
+                this.style.fontWeight = '';
+            }
+        });
+
+        // Set date inputs to current date by default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date-lost').value = today;
+        
+        const now = new Date().toISOString().slice(0, 16);
+        document.getElementById('incident-date').value = now;
+    </script>
+</body>
+</html>
